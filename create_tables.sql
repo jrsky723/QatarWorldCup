@@ -44,7 +44,7 @@ CREATE TABLE `Player` (
   FOREIGN KEY (`position`) REFERENCES `Position` (`position_code`)
 );
 
-ALTER TABLE Coach AUTO_INCREMENT = 2001; 
+ALTER TABLE Coach AUTO_INCREMENT = 2001;
 CREATE TABLE `Coach` (
   `coach_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `team_id` INT NOT NULL,
@@ -52,10 +52,10 @@ CREATE TABLE `Coach` (
   `coach_name` VARCHAR(40) NOT NULL,
   `first_name` VARCHAR(40) NOT NULL,
   `last_name` VARCHAR(40) NOT NULL,
-  `nationality` CHAR(3) NOT NULL,
-  FOREIGN KEY (`nationality`) REFERENCES `Country`(`country_code`),
+  `nationality` VARCHAR(20) NOT NULL,
   FOREIGN KEY (`team_id`) REFERENCES `Team`(`team_id`)
 );
+
 
 ALTER TABLE Referee AUTO_INCREMENT = 3001;
 CREATE TABLE `Referee` (
@@ -77,6 +77,10 @@ CREATE TABLE `Stadium` (
 );
 
 -- after game
+drop table `match`;
+ALTER TABLE `Match` AUTO_INCREMENT =2;
+ALTER TABLE `goal` AUTO_INCREMENT =1;
+DELETE FROM `match` WHERE `match_no`=1;
 
 CREATE TABLE `Match` (
   `match_no` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -88,7 +92,6 @@ CREATE TABLE `Match` (
   `asst_ref1_id` INT NOT NULL,
   `asst_ref2_id` INT NOT NULL,
   `four_off_ref_id` INT NOT NULL,
-  `penalty_shootout` CHAR(1),
   FOREIGN KEY (`stadium_id`) REFERENCES `Stadium` (`stadium_id`),
   FOREIGN KEY (`referee_id`) REFERENCES `Referee` (`referee_id`),
   FOREIGN KEY (`asst_ref1_id`) REFERENCES `Asst_Ref` (`asst_ref_id`),
@@ -99,28 +102,22 @@ CREATE TABLE `Match` (
 CREATE TABLE `Match_team` (
   `match_no` INT NOT NULL,
   `team_id` INT NOT NULL,
-  `result` CHAR(1),
+  `opponent_id` INT NOT NULL,
+  `result` CHAR(1) NOT NULL,
   `goals` INT NOT NULL,
   `shots` INT NOT NULL,
   `shots_on_target` INT NOT NULL,
+  `penalty_shootout` CHAR(1) NOT NULL,
+  `penalty_score` INT NOT NULL,
   PRIMARY KEY (`match_no`,`team_id`),
   FOREIGN KEY (`match_no`) REFERENCES `Match`(`match_no`),
   FOREIGN KEY (`team_id`) REFERENCES `Team`(`team_id`)
 );
-
-CREATE TABLE `Player_starting` (
+CREATE TABLE `Player_match` (
   `match_no` INT NOT NULL,
   `team_id` INT NOT NULL, 
   `player_id` INT NOT NULL,
-  PRIMARY KEY (`match_no`,`player_id`),
-  FOREIGN KEY (`match_no`) REFERENCES `Match` (`match_no`),
-  FOREIGN KEY (`team_id`) REFERENCES `Team` (`team_id`),
-  FOREIGN KEY (`player_id`) REFERENCES `Player` (`player_id`)
-);
-CREATE TABLE `Player_bench` (
-  `match_no` INT NOT NULL,
-  `team_id` INT NOT NULL,
-  `player_id` INT NOT NULL,
+  `player_status` CHAR(1) NOT NULL,
   PRIMARY KEY (`match_no`,`player_id`),
   FOREIGN KEY (`match_no`) REFERENCES `Match` (`match_no`),
   FOREIGN KEY (`team_id`) REFERENCES `Team` (`team_id`),
@@ -132,8 +129,8 @@ CREATE TABLE `Player_in_out` (
   `player_id` INT NOT NULL,
   `in_out` CHAR(1) NOT NULL,
   `in_out_time` INT NOT NULL,
-  `in_out_schedule` CHAR(2) NOT NULL,
-  `in_out_half` CHAR(1) NOT NULL,
+  `game_schedule` CHAR(2) NOT NULL,
+  `game_half` CHAR(1) NOT NULL,
   PRIMARY KEY (`match_no`,`player_id`),
   FOREIGN KEY (`match_no`) REFERENCES `Match` (`match_no`),
   FOREIGN KEY (`team_id`) REFERENCES `Team` (`team_id`),
@@ -143,11 +140,11 @@ CREATE TABLE `Player_card` (
   `match_no` INT NOT NULL,
   `team_id` INT NOT NULL,
   `player_id` INT NOT NULL,
-  `card_color` CHAR(1) NOT NULL,
   `card_time` INT NOT NULL,
-  `card_schedule` CHAR(2) NOT NULL,
-  `card_half` cHAR(1),
-  PRIMARY KEY (`match_no`,`player_id`,`card_color`),
+  `sent_off` CHAR(1) NOT NULL,
+  `game_schedule` CHAR(2) NOT NULL,
+  `game_half` CHAR(1),
+  PRIMARY KEY (`match_no`,`player_id`,`sent_off`),
   FOREIGN KEY (`match_no`) REFERENCES `Match` (`match_no`),
   FOREIGN KEY (`team_id`) REFERENCES `Team` (`team_id`),
   FOREIGN KEY (`player_id`) REFERENCES `Player` (`player_id`)
@@ -161,7 +158,6 @@ CREATE TABLE `Player_cap` (
   FOREIGN KEY (`team_id`) REFERENCES `Team` (`team_id`),
   FOREIGN KEY (`player_id`) REFERENCES `Player` (`player_id`)
 );
-
 CREATE TABLE `Goal` (
   `goal_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `match_no` INT NOT NULL,
@@ -169,8 +165,8 @@ CREATE TABLE `Goal` (
   `team_id` INT NOt NULL,
   `goal_type` CHAR(1),
   `goal_time` INT NOT NULL,
-  `goal_schedule` CHAR(2),
-  `goal_half` CHAR(1),
+  `game_schedule` CHAR(2),
+  `game_half` CHAR(1),
   FOREIGN KEY (`match_no`) REFERENCES `Match` (`match_no`),
   FOREIGN KEY (`player_id`) REFERENCES `Player` (`player_id`),
   FOREIGN KEY (`team_id`) REFERENCES `Team` (`team_id`)

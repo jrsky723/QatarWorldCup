@@ -9,7 +9,7 @@ country_code = ['ARG', 'AUS', 'BEL', 'BRA', 'CMR', 'CAN', 'CRC', 'CRO', 'DEN', '
 def insertCountry(cursor):
   record = []
   for co in country:
-    filename = './data/' + co + '/team.csv' 
+    filename = './data/Country/' + co + '/team.csv' 
     with open(filename, 'r', encoding='utf-8') as f:
       for items in csv.reader(f):
         record.append((items[1], items[0]))
@@ -19,7 +19,7 @@ def insertCountry(cursor):
 def insertTeam(cursor):
   record = []
   for co in country:
-    filename = './data/' + co + '/team.csv' 
+    filename = './data/Country/' + co + '/team.csv' 
     with open(filename, 'r', encoding='utf-8') as f:
       for items in csv.reader(f):
         record.append((items[2],items[1],0,0,0,0,0,0,0,0))
@@ -39,10 +39,10 @@ def insertPlayer(cursor):
   record = []
   for idx in range(len(country)):
     team_id = idx + 1
-    filename = './data/' + country[idx] + '/player.csv'
+    filename = './data/Country' + country[idx] + '/player.csv'
     with open(filename, 'r', encoding='utf-8') as f:
       for items in csv.reader(f):
-        if items[0] == '\ufeff' : continue
+        if items[0].startswith('\ufeff') : continue
         record.append((team_id,*items[0 : 6],convertDate(items[6]),*items[7 :]))
   query = 'INSERT INTO Player values (NULL,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);'
   cursor.executemany(query,record)
@@ -51,11 +51,11 @@ def insertCoach(cursor):
   record = []
   for idx in range(len(country)):
     team_id = idx + 1
-    filename = './data/' + country[idx] + '/coach.csv'
+    filename = './data/Country' + country[idx] + '/coach.csv'
     with open(filename, 'r', encoding='utf-8') as f:
       for items in csv.reader(f):
         if items[0].startswith('\ufeff') : continue
-        record.append((team_id, *items[:-1], country_code[idx]))
+        record.append((team_id, *items))
   query = 'INSERT INTO Coach values (NULL,%s,%s,%s,%s,%s,%s);'
   cursor.executemany(query,record)
 
@@ -105,7 +105,7 @@ if __name__ == "__main__":
         insertData(cursor)
         connection.commit()
   except Error as e :
-      print('error : ', e)        
+      print('Error : ', e)        
   finally :                      
       cursor.close()
       connection.close()
