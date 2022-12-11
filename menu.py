@@ -14,6 +14,7 @@ class Menu:
         break
       else:
         print('Wrong Number')
+        
 if __name__ =='__main__':
   m = Menu()
   m.run()

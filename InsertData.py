@@ -31,18 +31,18 @@ def insertPosition(cursor):
   query = 'INSERT INTO Position values (%s, %s);'
   cursor.executemany(query, record)
 
-def convertDate(s):
+def convertDate(s): #DOB format in player.csv: DD-MM-YYYY, MySQL format : YYYY-MM-DD
   d, m, y = s.split('-')
   return "-".join((y, m, d))
 
-def insertPlayer(cursor):
+def insertPlayer(cursor): #insert player csv into player Table
   record = []
-  for idx in range(len(country)):
-    team_id = idx + 1
+  for idx in range(len(country)): #country: list of 32 countries name
+    team_id = idx + 1    # team_id increases from 1
     filename = './data/Country' + country[idx] + '/player.csv'
     with open(filename, 'r', encoding='utf-8') as f:
-      for items in csv.reader(f):
-        if items[0].startswith('\ufeff') : continue
+      for items in csv.reader(f): #Excluding the row representing column information
+        if items[0].startswith('\ufeff') : continue 
         record.append((team_id,*items[0 : 6],convertDate(items[6]),*items[7 :]))
   query = 'INSERT INTO Player values (NULL,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);'
   cursor.executemany(query,record)
